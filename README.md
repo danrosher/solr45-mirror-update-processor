@@ -18,23 +18,27 @@ that needs to be taken care of.
 
 #### Config setup 
 ```xml
-<lib dir="../path/to/jar" regex=".*\.jar"/>
+<config>
+    
+    <lib dir="../path/to/jar" regex=".*\.jar"/>
+    
+    <requestHandler name="/update" class="solr.UpdateRequestHandler">
+        <lst name="defaults">
+          <str name="update.chain">mirror</str>
+        </lst>
+    </requestHandler>
+    
+    <updateRequestProcessorChain name="mirror">
+         <processor class="org.apache.solr.update.processor.MirrorUpdateRequestProcessorFactory">
+           <str name="solrServerUrl">http://solr:8983/solr/collection1</str>
+            <int name="queueSize">2</int>
+            <int name="threadCount">4</int>
+          </processor>
+          <processor class="solr.LogUpdateProcessorFactory" />
+          <processor class="solr.RunUpdateProcessorFactory" />
+    </updateRequestProcessorChain>
 
-<requestHandler name="/update" class="solr.UpdateRequestHandler">
-    <lst name="defaults">
-      <str name="update.chain">mirror</str>
-    </lst>
-  </requestHandler>
-
-<updateRequestProcessorChain name="mirror">
-     <processor class="org.apache.solr.update.processor.MirrorUpdateRequestProcessorFactory">
-       <str name="solrServerUrl">http://solr:8983/solr/collection1</str>
-        <int name="queueSize">2</int>
-        <int name="threadCount">4</int>
-      </processor>
-      <processor class="solr.LogUpdateProcessorFactory" />
-      <processor class="solr.RunUpdateProcessorFactory" />
-  </updateRequestProcessorChain>
+</config>
 ```
 ---
 #### Building
