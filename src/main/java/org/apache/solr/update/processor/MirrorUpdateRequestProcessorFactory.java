@@ -18,7 +18,7 @@ import java.io.IOException;
 import static org.apache.solr.update.processor.MirrorUpdateRequestProcessorFactory.log;
 
 
-// <lib dir="/usr/local/share/solr-4.5.1/webapp/solr45/WEB-INF/lib/cvlibrary" regex=".*\.jar"/>
+// <lib dir="../../path/to/jar" regex=".*\.jar"/>
 //..
 //<requestHandler name="/update" class="solr.UpdateRequestHandler">
 //    <lst name="defaults">
@@ -28,7 +28,7 @@ import static org.apache.solr.update.processor.MirrorUpdateRequestProcessorFacto
 //..
 //<updateRequestProcessorChain name="mirror">
 //      <processor class="org.apache.solr.update.processor.MirrorUpdateRequestProcessorFactory">
-//        <str name="solrServerUrl">http://solr:8983/solr/account-requests</str>
+//        <str name="solrServerUrl">http://solr:8983/solr/collection1</str>
 //        <int name="queueSize">2</int>
 //        <int name="threadCount">4</int>
 //      </processor>
