@@ -14,15 +14,18 @@ I had looked at [HAProxy Traffic Mirroring](https://www.haproxy.com/blog/haproxy
 but this is much simpler to write, setup and implement for Solr. Additionally, there are [issues due to largish payloads](https://github.com/haproxytech/spoa-mirror/issues/6)
 that needs to be taken care of.
 
+----
+
+#### Config setup 
 ```xml
 <lib dir="../path/to/jar" regex=".*\.jar"/>
-...
+
 <requestHandler name="/update" class="solr.UpdateRequestHandler">
     <lst name="defaults">
       <str name="update.chain">mirror</str>
     </lst>
   </requestHandler>
-..
+
 <updateRequestProcessorChain name="mirror">
      <processor class="org.apache.solr.update.processor.MirrorUpdateRequestProcessorFactory">
        <str name="solrServerUrl">http://solr:8983/solr/collection1</str>
@@ -33,12 +36,13 @@ that needs to be taken care of.
       <processor class="solr.RunUpdateProcessorFactory" />
   </updateRequestProcessorChain>
 ```
-
+---
+#### Building
 create uber jar with 
 ```mvn
 mvn clean package
 ```
 
 If you want to change for different source version, you may need to change ```pom.xml``` to have 
-```org.apache.solr:solr-solrj``` and ```org.apache.solr:solr-core``` point to the correct source solr version
+```org.apache.solr:solr-solrj``` and ```org.apache.solr:solr-core``` to point to the correct source solr version
 
