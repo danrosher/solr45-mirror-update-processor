@@ -1,11 +1,11 @@
 # solr4.5 mirror update processor to any newer version
 
-## Useful for migrating from solr 4.5 to say solr 9.x. 
+<u>Useful for migrating from solr 4.5 to say solr 9.x.</u> 
 
 Will mirror adds/updates and deletes (by id and query) to a solr 
 4.5 server to a later version of solr
 
-Tested with 4.5 -> 9.2.1
+Tested with 4.5 &rarr; 9.2.1
 
 Once data is in sync, you can then migrate traffic from old to new Solr version, 
 if you go through a proxy like HAProxy for example.
