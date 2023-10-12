@@ -75,7 +75,8 @@ final class MirrorUpdateRequestProcessor extends UpdateRequestProcessor {
             try {
                 SolrInputDocument doc = cmd.solrDoc.deepCopy();
                 //assume complete overwrite for updates
-                doc.remove("_VERSION_");
+                doc.remove("_version_");
+                doc.setField("_version_",-1);//document must not already exist
                 doc.remove("boost");
                 client.add(doc);
             } catch (SolrServerException e) {
