@@ -1,9 +1,12 @@
 package org.apache.solr.update.processor;
 
+import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
+import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.request.SolrQueryRequest;
@@ -42,9 +45,14 @@ public class MirrorUpdateRequestProcessorFactory extends UpdateRequestProcessorF
 
     public SolrParams args = null;
     private ConcurrentUpdateSolrServer client;
+    private SolrParams solrParams = new ModifiableSolrParams();
 
     @Override
     public void init(NamedList nl) {
+        Object p = nl.get("solrParams");
+        if (p instanceof NamedList) {
+            this.solrParams = SolrParams.toSolrParams((NamedList<?>) p);
+        }
         this.args = SolrParams.toSolrParams(nl);
         String solrServerUrl = args.get("solrServerUrl");
         if (solrServerUrl == null) {
@@ -52,12 +60,32 @@ public class MirrorUpdateRequestProcessorFactory extends UpdateRequestProcessorF
         }
         int queueSize = args.getInt("queueSize", 1);
         int threadCount = args.getInt("threadCount", Runtime.getRuntime().availableProcessors());
-        this.client = new ConcurrentUpdateSolrServer(solrServerUrl, queueSize, threadCount);
+        this.client = new MyConcurrentUpdateSolrClient(solrServerUrl, queueSize, threadCount, solrParams);
     }
 
     @Override
     public UpdateRequestProcessor getInstance(SolrQueryRequest req, SolrQueryResponse rsp, UpdateRequestProcessor next) {
         return new MirrorUpdateRequestProcessor(client, next);
+    }
+}
+
+final class MyConcurrentUpdateSolrClient extends ConcurrentUpdateSolrServer {
+
+    private final SolrParams solrParams;
+
+    public MyConcurrentUpdateSolrClient(String solrServerUrl, int queueSize, int threadCount, SolrParams solrParams) {
+        super(solrServerUrl, queueSize, threadCount);
+        this.solrParams = solrParams;
+    }
+
+
+    @Override
+    public NamedList<Object> request(SolrRequest request) throws SolrServerException, IOException {
+        if (request instanceof UpdateRequest) {
+            UpdateRequest req = (UpdateRequest) request;
+            req.getParams().add(solrParams); //req same obj as request
+        }
+        return super.request(request);
     }
 }
 
@@ -76,7 +104,7 @@ final class MirrorUpdateRequestProcessor extends UpdateRequestProcessor {
                 SolrInputDocument doc = cmd.solrDoc.deepCopy();
                 //assume complete overwrite for updates
                 doc.remove("_version_");
-                doc.setField("_version_",-1);//document must not already exist
+                doc.setField("_version_", -1);
                 doc.remove("boost");
                 client.add(doc);
             } catch (SolrServerException e) {
