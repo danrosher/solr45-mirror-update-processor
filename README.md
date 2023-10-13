@@ -29,8 +29,11 @@ that needs to be taken care of.
     </requestHandler>
     
     <updateRequestProcessorChain name="mirror">
-         <processor class="org.apache.solr.update.processor.MirrorUpdateRequestProcessorFactory">
-           <str name="solrServerUrl">http://solr:8983/solr/collection1</str>
+         <processor class="org.apache.solr.update.processor.MirrorUpdateRequestProcessorFactory">             
+            <str name="solrServerUrl">http://solr:8983/solr/collection1</str>
+            <lst name="solrParams">
+                <bool name="failOnVersionConflicts">false</bool>
+            </lst> 
             <int name="queueSize">2</int>
             <int name="threadCount">4</int>
           </processor>
